@@ -1,8 +1,10 @@
 #This file will need to use the DataManager,FlightSearch, FlightData, NotificationManager classes to achieve the program requirements.
 import os
+from time import sleep
 from dotenv import load_dotenv
 from data_manager import DataManager
 from flight_search import FlightSearch
+from notification_manager import NotificationManager
 
 #todo Get rows from sheet to determine if they have a city code.  if not update the code
 load_dotenv()
@@ -20,24 +22,23 @@ for dest in dm.destinations:
         if len(city_code) > 0:
             #save the city code to the spreadsheet
             dm.save_city_code(dest_id = dest["id"], code = city_code)
+            print(f"Saving City Code: {city_code}")
+    sleep(2)
 
 
 #TODO search for cheap price for each city
+alerts = []
 for dest in dm.destinations:
     if dest["iataCode"] != "":
-        cp_data = fs.get_cheap_flights(city_code= dest["iataCode"])
-        print(cp_data)
-        #loop through flights for the cheapest one
-        # for flight in cp_data:
-
-        # current_pricing.append(
-        #     {
-        #         "id": dest['id'],
-        #
-        #     }
-        # )
-
-#todo compare the flight price to the low price in the spreadsheet
+        flight = fs.get_cheap_flight(city_code= dest["iataCode"])
+        if dest["lowestPrice"] > flight.price:
+            #save the new flight info to the alerts list to be sent
+            alerts.append(flight)
 
 
 #todo send text message for low fares
+nm = NotificationManager()
+for flight in alerts:
+    nm.send_flight_info(flight)
+    sleep(1)
+
