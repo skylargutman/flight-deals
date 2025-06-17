@@ -31,14 +31,15 @@ alerts = []
 for dest in dm.destinations:
     if dest["iataCode"] != "":
         flight = fs.get_cheap_flight(city_code= dest["iataCode"])
-        if dest["lowestPrice"] > flight.price:
-            #save the new flight info to the alerts list to be sent
-            alerts.append(flight)
+        if flight.price != "":
+            if float(dest["lowestPrice"]) > float(flight.price):
+                #save the new flight info to the alerts list to be sent
+                alerts.append(flight)
 
 
 #todo send text message for low fares
 nm = NotificationManager()
 for flight in alerts:
     nm.send_flight_info(flight)
-    sleep(1)
+    sleep(2)
 

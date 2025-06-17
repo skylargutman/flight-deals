@@ -68,13 +68,15 @@ class FlightSearch:
             if "data" in json_data:
                 if len(json_data["data"]) > 0:
                     flights.append(FlightData(flight_data = json_data["data"][0]))
-                    print(f"Found flight for {query_string['destinationLocationCode']} on {query_string['departureDate']}")
+                    print(f"Found flight for {query_string['destinationLocationCode']} from {flights[-1].origin_city} on {query_string['departureDate']}")
             #don't go too fast, or they will stop you.
             sleep(2)
-        cheap_flight = flights[0]
-        for flight in flights:
-            if float(cheap_flight.price) > flight.price:
-                cheap_flight = flight
+        cheap_flight = FlightData("")
+        if len(flights) > 0:
+            cheap_flight = flights[0]
+            for flight in flights:
+                if float(cheap_flight.price) > flight.price:
+                    cheap_flight = flight
 
         return cheap_flight
 
