@@ -74,6 +74,7 @@ class FlightSearch:
                     print(f"Found flight for {query_string['destinationLocationCode']} from {flights[-1].origin_city} on {query_string['departureDate']}")
                 else:
                     #try again if no flights were found for flights that are not nonstop
+                    sleep(1)  #give them some time
                     query_string["nonStop"] = "false"
                     response = requests.get(url=url, headers=self.header, params=query_string)
                     response.raise_for_status()
