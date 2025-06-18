@@ -6,9 +6,8 @@ from data_manager import DataManager
 from flight_search import FlightSearch
 from notification_manager import NotificationManager
 
-#todo Get rows from sheet to determine if they have a city code.  if not update the code
+# Get rows from sheet to determine if they have a city code.  if not update the code
 load_dotenv()
-current_pricing=[]
 
 dm = DataManager()
 dm.get_destinations()
@@ -26,7 +25,7 @@ for dest in dm.destinations:
     sleep(2)
 
 
-#TODO search for cheap price for each city
+# search for cheap price for each city
 alerts = []
 for dest in dm.destinations:
     if dest["iataCode"] != "":
@@ -37,9 +36,17 @@ for dest in dm.destinations:
                 alerts.append(flight)
 
 
-#todo send text message for low fares
+# send text message for low fares
 nm = NotificationManager()
 for flight in alerts:
     nm.send_flight_info(flight)
     sleep(2)
+
+
+# send emails for low fares
+if dm.get_customer_emails():
+    for customer in dm.users:
+        for flight in alerts:
+            nm.email_flight_info(customer, flight)
+
 

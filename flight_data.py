@@ -9,9 +9,11 @@ class FlightData:
             self.price = ""
             self.departure_date = ""
             self.flight_data = ""
+            self.stops = 0
         else:
             self.origin_city = flight_data["itineraries"][0]["segments"][0]["departure"]["iataCode"]
             self.destination_city = flight_data["itineraries"][0]["segments"][-1]["arrival"]["iataCode"]
             self.price = float(flight_data["price"]["total"])
             self.departure_date = flight_data["itineraries"][0]["segments"][0]["departure"]["at"].split("T")[0]
             self.flight_data = flight_data
+            self.stops = len(flight_data["itineraries"][0]["segments"])

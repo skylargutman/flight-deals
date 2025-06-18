@@ -50,7 +50,7 @@ class FlightSearch:
         else:
             return ""
 
-    def get_cheap_flight(self, city_code):
+    def get_cheap_flight(self, city_code, is_direct=True):
         flights: list[FlightData] = []
         url = "https://test.api.amadeus.com/v2/shopping/flight-offers"
         dates = self.get_dates_to_fly()
@@ -60,15 +60,31 @@ class FlightSearch:
                 "destinationLocationCode" : city_code,
                 "departureDate" : date,
                 "adults" : 1,
-                "max":1
+                "max":1,
+                "nonStop" : "true",
+                "currencyCode" : "USD"
             }
             response = requests.get(url=url, headers=self.header, params=query_string)
             response.raise_for_status()
             json_data = response.json()
             if "data" in json_data:
                 if len(json_data["data"]) > 0:
+                    #grab the first flight found as it is the cheapest
                     flights.append(FlightData(flight_data = json_data["data"][0]))
                     print(f"Found flight for {query_string['destinationLocationCode']} from {flights[-1].origin_city} on {query_string['departureDate']}")
+                else:
+                    #try again if no flights were found for flights that are not nonstop
+                    query_string["nonStop"] = "false"
+                    response = requests.get(url=url, headers=self.header, params=query_string)
+                    response.raise_for_status()
+                    json_data = response.json()
+                    if "data" in json_data:
+                        if len(json_data["data"]) > 0:
+                            # grab the first flight found as it is the cheapest
+                            flights.append(FlightData(flight_data=json_data["data"][0]))
+                            print(
+                                f"Found flight with stops for {query_string['destinationLocationCode']} from {flights[-1].origin_city} on {query_string['departureDate']}")
+
             #don't go too fast, or they will stop you.
             sleep(2)
         cheap_flight = FlightData("")
